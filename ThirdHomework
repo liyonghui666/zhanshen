@@ -1,0 +1,95 @@
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+typedef struct 
+{
+	int weight;
+	int parent,lchild,rchlid;
+}HFNode,*HFTree;
+typedef char * * HFCode;
+void Select(HFTree T,int k,int &s1,int &s2)
+{
+	int min=100;
+	for(int i=1;i<=k;i++)
+		if(T[i].parent==0&&T[i].weight<min)
+		{
+			min=T[i].weight;
+			s1=i;
+		}
+	min=100;
+	for(int i=1;i<=k;i++)
+	{
+		if(i!=s1&&T[i].parent==0&&T[i].weight<min)
+		{
+			min=T[i].weight;
+			s2=i;
+		}
+	}
+}
+void HFCoding(HFTree &T,HFCode &C,int *w,int m)
+{
+	if(m<=1) return;
+	int n=2*m-1;
+	int i,s1,s2;
+	HFTree p=NULL;
+	T=new HFNode[n+1];
+	for(p=T+1,i=1;i<=m;++i,++p,++w)
+	{
+		p->weight=*w;
+		p->lchild=0;
+		p->rchlid=0;
+		p->parent=0;
+	}
+	for(;i<=n;++i,++p)
+	{
+		p->weight=0;
+		p->lchild=0;
+		p->rchlid=0;
+		p->parent=0;
+	}
+	for(i=m+1;i<=n;++i)
+	{
+		Select(T,i-1,s1,s2);
+		T[s1].parent=i;
+		T[s2].parent=i;
+		T[i].lchild=s1;
+		T[i].rchlid=s2;
+		T[i].weight=T[s1].weight+T[s2].weight;
+	}
+	C=new char *[m+1];
+	char *cd=new char[m];
+	cd[m-1]='\0';
+	for(i=1;i<=m;++i)
+	{
+		int start=m-1;
+		for(int c=i,f=T[i].parent;f!=0;c=f,f=T[f].parent)
+		{
+			if(T[f].lchild==c) cd[--start]='0';
+			else cd[--start]='1';
+		}
+		C[i]=new char[m-start];
+		strcpy(C[i],&cd[start]);
+	}
+	delete cd;
+}
+int main()
+{
+	float a1[100];
+	int a[100],m,i;
+	char str[100];
+	HFTree T;
+	HFCode C;
+	scanf("%d",&m);
+	scanf("%s",str);
+	for(i=0;i<m;i++)
+	{
+			scanf("%f",&a1[i]);
+			a[i]=a1[i]*100;
+	}
+	HFCoding(T,C,a,m);
+	for(i=1;i<=m;i++)
+		printf("The %c 's Huffman code is:%s\n",str[i-1],C[i]);
+	system("pause");
+	return 0;
+}
